@@ -6,17 +6,7 @@ use App\Models\User;
 
 class AuthController {
 
-    // Muestra la vista de Registro
-    public function showRegister() {
-        require '../views/auth/register.php';
-    }
-
-    // Muestra la vista de Login
-    public function showLogin() {
-        require '../views/auth/login.php';
-    }
-
-    // Recibe POST para registrar
+    // Recibe GET (muestra vista) y POST (procesa registro)
     public function register() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $firstName = $_POST['first_name'] ?? '';
@@ -37,19 +27,19 @@ class AuthController {
 
             if ($success) {
                 // Redirige al login tras el éxito
-                header('Location: /auth/showLogin?msg=registered');
+                header('Location: /login?msg=registered');
                 exit;
             } else {
                 $error = "El correo electrónico ya está registrado o hubo un error al crear la cuenta.";
                 require '../views/auth/register.php';
             }
         } else {
-            // Si llegan por GET a /auth/register en lugar de showRegister, mostramos la vista
-            $this->showRegister();
+            // GET request
+            require '../views/auth/register.php';
         }
     }
 
-    // Recibe POST para loguearse
+    // Recibe GET (muestra vista) y POST (procesa login)
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_POST['email'] ?? '';
@@ -76,7 +66,7 @@ class AuthController {
                 $_SESSION['user_id'] = $user['id_hex'];
                 $_SESSION['tier_id'] = $user['tier_id'];
 
-                // Redirigir al dashboard (lógica de ModuleController a implementar)
+                // Redirigir al dashboard
                 header('Location: /module/dashboard');
                 exit;
             } else {
@@ -84,8 +74,8 @@ class AuthController {
                 require '../views/auth/login.php';
             }
         } else {
-            // Si llegan por GET a /auth/login en lugar de showLogin, mostramos la vista
-            $this->showLogin();
+            // GET request
+            require '../views/auth/login.php';
         }
     }
 
@@ -93,7 +83,7 @@ class AuthController {
     public function logout() {
         session_unset();
         session_destroy();
-        header('Location: /auth/showLogin');
+        header('Location: /login');
         exit;
     }
 }

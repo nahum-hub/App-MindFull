@@ -17,7 +17,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/auth/register" class="space-y-6">
+        <form method="POST" action="/register" class="space-y-6">
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-gray-700 text-sm font-semibold mb-2" for="first_name">Nombre</label>
@@ -44,7 +44,7 @@
             <div class="text-center mt-6">
                 <p class="text-sm text-gray-600">
                     ¿Ya tienes una cuenta?
-                    <a href="/auth/showLogin" class="font-semibold text-blue-600 hover:text-blue-500 transition">
+                    <a href="/login" class="font-semibold text-blue-600 hover:text-blue-500 transition">
                         Inicia sesión aquí
                     </a>
                 </p>

@@ -31,16 +31,40 @@ spl_autoload_register(function ($class) {
 
 session_start();
 
-// Front Controller Básico
+// Front Controller Básico con Mapeo de Rutas Especiales
 $url = $_GET['url'] ?? 'home';
 $url = rtrim($url, '/');
+if (empty($url)) {
+    $url = 'home';
+}
 $urlParts = explode('/', filter_var($url, FILTER_SANITIZE_URL));
 
-// Capitalizamos el primer segmento para el controlador (ej. 'home' -> 'HomeController')
-$controllerName = ucfirst($urlParts[0]) . 'Controller';
+// Mapeo de rutas amigables
+$routes = [
+    'login' => ['AuthController', 'login'],
+    'register' => ['AuthController', 'register'],
+    'logout' => ['AuthController', 'logout'],
+    'home' => ['HomeController', 'index']
+];
 
-// El segundo segmento es el método (por defecto 'index')
-$methodName = isset($urlParts[1]) ? $urlParts[1] : 'index';
+$firstSegment = strtolower($urlParts[0]);
+
+if (isset($routes[$firstSegment])) {
+    $controllerName = $routes[$firstSegment][0];
+    $methodName = $routes[$firstSegment][1];
+
+    // Si hay más partes en la URL, se pasan como parámetros (por si acaso se necesitan)
+    unset($urlParts[0]);
+    $params = array_values($urlParts);
+} else {
+    // Comportamiento dinámico por defecto (ej. module/dashboard -> ModuleController->dashboard())
+    // Manejar caso base cuando la URL no tiene controlador ni método definido
+    $controllerName = (!empty($urlParts[0])) ? ucfirst($urlParts[0]) . 'Controller' : 'HomeController';
+    $methodName = (!empty($urlParts[1])) ? $urlParts[1] : 'index';
+
+    unset($urlParts[0], $urlParts[1]);
+    $params = array_values($urlParts);
+}
 
 // Path al controlador
 $controllerFile = '../app/Controllers/' . $controllerName . '.php';
@@ -53,12 +77,8 @@ if (file_exists($controllerFile)) {
 
     // Verificamos si el método existe en el controlador
     if (method_exists($controller, $methodName)) {
-        // Eliminamos controlador y método del array para pasar el resto como parámetros
-        unset($urlParts[0], $urlParts[1]);
-        $params = array_values($urlParts);
-
         // Llamamos al método con sus parámetros
-        call_user_func_array([$controller, $methodName], $params);
+        call_user_func_array([$controller, $methodName], $params ?? []);
     } else {
         // En producción sería un render de vista 404, en local depuramos:
         die("Error 404: Método '$methodName' no encontrado en el controlador '$controllerName'.");

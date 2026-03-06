@@ -26,10 +26,10 @@ $isLoggedIn = isset($_SESSION['user_id']);
                 <div class="flex items-center space-x-4">
                     <?php if ($isLoggedIn): ?>
                         <a href="/module/dashboard" class="text-gray-600 hover:text-blue-600 font-medium transition">Ir al Dashboard</a>
-                        <a href="/auth/logout" class="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-2 rounded-md font-medium transition">Cerrar Sesión</a>
+                        <a href="/logout" class="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-2 rounded-md font-medium transition">Cerrar Sesión</a>
                     <?php else: ?>
-                        <a href="/auth/showLogin" class="text-gray-600 hover:text-blue-600 font-medium transition">Iniciar Sesión</a>
-                        <a href="/auth/showRegister" class="bg-blue-600 text-white hover:bg-blue-700 px-5 py-2 rounded-md font-medium shadow-sm transition">Únete Gratis</a>
+                        <a href="/login" class="text-gray-600 hover:text-blue-600 font-medium transition">Iniciar Sesión</a>
+                        <a href="/register" class="bg-blue-600 text-white hover:bg-blue-700 px-5 py-2 rounded-md font-medium shadow-sm transition">Únete Gratis</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -53,11 +53,11 @@ $isLoggedIn = isset($_SESSION['user_id']);
                     </a>
                 <?php else: ?>
                     <div class="flex flex-col sm:flex-row justify-center gap-4">
-                        <a href="/auth/showRegister" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+                        <a href="/register" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
                             Comenzar ahora
                         </a>
-                        <a href="#about" class="inline-block bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-bold text-lg py-4 px-8 rounded-full shadow-sm hover:shadow transition">
-                            Saber más
+                        <a href="/login" class="inline-block bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-bold text-lg py-4 px-8 rounded-full shadow-sm hover:shadow transition">
+                            Continuar mi progreso &rarr;
                         </a>
                     </div>
                 <?php endif; ?>
