@@ -54,6 +54,26 @@ class ModuleController {
         require '../views/module/dashboard.php';
     }
 
+    // Ruta: /mi-progreso
+    public function miProgreso() {
+        $moduleModel = new Module();
+        $completedHistory = $moduleModel->getCompletedHistory($this->userId);
+
+        $modulosTerminados = [];
+        $retosTerminados = [];
+
+        foreach ($completedHistory as $item) {
+            // Asumiendo que los retos tienen tipo 'reto_semanal', 'reto_mensual', 'reto_individual'
+            if (strpos($item['type'], 'reto') !== false) {
+                $retosTerminados[] = $item;
+            } else {
+                $modulosTerminados[] = $item;
+            }
+        }
+
+        require '../views/module/progreso.php';
+    }
+
     // Ruta: /module/saveActivity (se llama por AJAX o POST)
     public function saveActivity() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {

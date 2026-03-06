@@ -57,7 +57,8 @@ $routes = [
     'logout' => ['AuthController', 'logout'],
     'home' => ['HomeController', 'index'],
     'continue' => ['HomeController', 'continueProgreso'],
-    'dashboard' => ['ModuleController', 'dashboard'] // Por si se accede como /dashboard
+    'dashboard' => ['ModuleController', 'dashboard'], // Por si se accede como /dashboard
+    'mi-progreso' => ['ModuleController', 'miProgreso']
 ];
 
 $firstSegment = strtolower($urlParts[0]);

@@ -26,6 +26,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                 <div class="flex items-center space-x-4">
                     <?php if ($isLoggedIn): ?>
                         <a href="<?= BASE_URL ?>module/dashboard" class="text-gray-600 hover:text-blue-600 font-medium transition">Ir al Dashboard</a>
+                        <a href="<?= BASE_URL ?>mi-progreso" class="text-gray-600 hover:text-blue-600 font-medium transition">Mi Progreso</a>
                         <a href="<?= BASE_URL ?>logout" class="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-2 rounded-md font-medium transition">Cerrar Sesión</a>
                     <?php else: ?>
                         <a href="<?= BASE_URL ?>login" class="text-gray-600 hover:text-blue-600 font-medium transition">Iniciar Sesión</a>

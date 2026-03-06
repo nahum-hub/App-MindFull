@@ -21,11 +21,15 @@ $error = $_GET['error'] ?? null;
     <nav class="bg-white shadow-sm border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <div class="flex items-center">
+                <div class="flex items-center space-x-8">
                     <a href="<?= BASE_URL ?>" class="text-xl font-bold text-blue-600 tracking-tight">Círculo de Crecimiento</a>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="<?= BASE_URL ?>module/dashboard" class="text-blue-600 font-bold border-b-2 border-blue-600 px-1 py-5">Dashboard</a>
+                        <a href="<?= BASE_URL ?>mi-progreso" class="text-gray-500 hover:text-blue-600 font-medium transition">Mi Progreso</a>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <span class="text-gray-500 text-sm">Mi Progreso</span>
+                    <a href="<?= BASE_URL ?>mi-progreso" class="md:hidden text-gray-500 hover:text-blue-600 text-sm font-medium transition">Mi Progreso</a>
                     <a href="<?= BASE_URL ?>logout" class="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-2 rounded-md text-sm font-medium transition">Cerrar Sesión</a>
                 </div>
             </div>
@@ -83,71 +87,73 @@ $error = $_GET['error'] ?? null;
                     <?php endif; ?>
                 <?php endif; ?>
 
-                <!-- Lista de Actividades -->
-                <div class="px-6 py-6 space-y-8 bg-gray-50">
-                    <?php if (empty($activities)): ?>
-                        <p class="text-gray-500 text-center italic">No hay actividades configuradas para este módulo aún.</p>
-                    <?php else: ?>
-                        <?php foreach ($activities as $act): ?>
-                            <?php
-                                // Recordar regla: is_completed = 1 significa Pendiente. 0 significa Completado.
-                                $isDone = ($act['is_completed'] === 0);
-                            ?>
-                            <div class="bg-white p-6 rounded-lg shadow-sm border <?= $isDone ? 'border-green-200' : 'border-gray-200' ?>">
-                                <div class="flex justify-between items-start mb-4">
-                                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
-                                        <span class="flex items-center justify-center bg-blue-100 text-blue-700 rounded-full h-8 w-8 text-sm mr-3">
-                                            <?= $act['position'] ?>
-                                        </span>
-                                        Pregunta para ti:
-                                    </h3>
-                                    <?php if ($isDone): ?>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Completada
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                            Pendiente
-                                        </span>
-                                    <?php endif; ?>
-                                </div>
-
-                                <p class="text-gray-700 mb-4 ml-11"><?= nl2br(htmlspecialchars($act['content_text'])) ?></p>
-
-                                <form class="activity-form ml-11" data-activity-id="<?= $act['id'] ?>">
-                                    <textarea
-                                        name="response"
-                                        rows="4"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3 text-gray-700 <?= $isDone ? 'bg-green-50' : 'bg-white' ?>"
-                                        placeholder="Reflexiona y escribe tu respuesta aquí..."
-                                    ><?= htmlspecialchars($act['response_content'] ?? '') ?></textarea>
-
-                                    <div class="mt-3 flex justify-end items-center space-x-4">
-                                        <span class="status-msg text-sm text-green-600 hidden font-medium">✓ Guardado (Actualizado a 0)</span>
-                                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-md shadow-sm transition">
-                                            Guardar Respuesta
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Formulario Keyword Unlock (Aparece sólo si todo es 0) -->
+                <!-- Si todo está completado, ocultamos las actividades y mostramos solo el unlock -->
                 <?php if (!empty($activities) && $allCompleted): ?>
-                    <div class="px-6 py-8 bg-blue-50 border-t border-blue-100">
-                        <div class="text-center mb-6">
-                            <h2 class="text-2xl font-bold text-blue-900 mb-2">¡Excelente Trabajo!</h2>
-                            <p class="text-blue-700">Has completado todas las actividades del módulo. Ingresa la palabra clave de la lección para avanzar.</p>
+                    <div class="px-6 py-12 bg-blue-50 border-t border-blue-100 flex flex-col items-center justify-center text-center">
+                        <div class="mb-6">
+                            <span class="text-5xl">🎉</span>
                         </div>
-                        <form method="POST" action="<?= BASE_URL ?>module/unlock" class="max-w-md mx-auto flex gap-3">
+                        <h2 class="text-3xl font-extrabold text-blue-900 mb-4">¡Excelente Trabajo!</h2>
+                        <p class="text-blue-800 text-lg mb-8 max-w-xl mx-auto leading-relaxed">Has completado y reflexionado sobre todas las actividades de este módulo. Ingresa la palabra clave de la lección para guardar tu progreso y avanzar al siguiente paso.</p>
+
+                        <form method="POST" action="<?= BASE_URL ?>module/unlock" class="w-full max-w-md mx-auto flex gap-3 shadow-lg rounded-md overflow-hidden">
                             <input type="hidden" name="module_id" value="<?= $currentModule['id'] ?>">
-                            <input type="text" name="keyword" placeholder="Escribe la palabra secreta" class="flex-grow rounded-md border-blue-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 p-3" required>
-                            <button type="submit" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-md shadow-md transition">
+                            <input type="text" name="keyword" placeholder="Escribe la palabra secreta" class="flex-grow border-0 focus:ring-0 p-4 text-gray-800 text-lg font-medium" required>
+                            <button type="submit" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-4 px-8 transition text-lg">
                                 Desbloquear
                             </button>
                         </form>
+                    </div>
+                <?php else: ?>
+                    <!-- Lista de Actividades -->
+                    <div class="px-6 py-6 space-y-8 bg-gray-50">
+                        <?php if (empty($activities)): ?>
+                            <p class="text-gray-500 text-center italic">No hay actividades configuradas para este módulo aún.</p>
+                        <?php else: ?>
+                            <?php foreach ($activities as $act): ?>
+                                <?php
+                                    // Recordar regla: is_completed = 1 significa Pendiente. 0 significa Completado.
+                                    $isDone = ($act['is_completed'] === 0);
+                                ?>
+                                <div class="bg-white p-6 rounded-lg shadow-sm border <?= $isDone ? 'border-green-200' : 'border-gray-200' ?>">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                                            <span class="flex items-center justify-center bg-blue-100 text-blue-700 rounded-full h-8 w-8 text-sm mr-3">
+                                                <?= $act['position'] ?>
+                                            </span>
+                                            Pregunta para ti:
+                                        </h3>
+                                        <?php if ($isDone): ?>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Completada
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                Pendiente
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <p class="text-gray-700 mb-4 ml-11"><?= nl2br(htmlspecialchars($act['content_text'])) ?></p>
+
+                                    <form class="activity-form ml-11" data-activity-id="<?= $act['id'] ?>">
+                                        <textarea
+                                            name="response"
+                                            rows="4"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3 text-gray-700 <?= $isDone ? 'bg-green-50' : 'bg-white' ?>"
+                                            placeholder="Reflexiona y escribe tu respuesta aquí..."
+                                        ><?= htmlspecialchars($act['response_content'] ?? '') ?></textarea>
+
+                                        <div class="mt-3 flex justify-end items-center space-x-4">
+                                            <span class="status-msg text-sm text-green-600 hidden font-medium">✓ Guardado (Actualizado a 0)</span>
+                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-md shadow-sm transition">
+                                                Guardar Respuesta
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -186,40 +192,6 @@ $error = $_GET['error'] ?? null;
                 </div>
             </div>
         <?php endif; ?>
-
-        <!-- Sección: Mi Progreso (Muro de Estrellas) -->
-        <div class="bg-white rounded-xl shadow-sm border border-yellow-200 overflow-hidden mb-8">
-            <div class="px-6 py-5 bg-yellow-50 border-b border-yellow-100">
-                <h2 class="text-2xl font-extrabold text-yellow-900 flex items-center">
-                    <span class="mr-2 text-2xl">🏆</span> Mi Progreso
-                </h2>
-                <p class="text-yellow-700 text-sm mt-1">Muro de honor de tus módulos y retos completados.</p>
-            </div>
-            <div class="p-6">
-                <?php if (empty($completedHistory)): ?>
-                    <p class="text-gray-500 text-center italic">Aún no has completado ningún módulo o reto. ¡Sigue adelante!</p>
-                <?php else: ?>
-                    <ul class="space-y-3">
-                        <?php foreach ($completedHistory as $history): ?>
-                            <li class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                <span class="text-xl mr-3" title="Completado">⭐</span>
-                                <div class="flex-grow">
-                                    <h4 class="text-md font-bold text-gray-800"><?= htmlspecialchars($history['title']) ?></h4>
-                                    <span class="text-xs text-gray-500 uppercase tracking-wide">
-                                        <?= htmlspecialchars(str_replace('_', ' ', $history['type'])) ?>
-                                    </span>
-                                </div>
-                                <?php if (!empty($history['completed_at'])): ?>
-                                    <div class="text-xs text-gray-400">
-                                        <?= date('d M Y', strtotime($history['completed_at'])) ?>
-                                    </div>
-                                <?php endif; ?>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </div>
-        </div>
 
     </main>
 
