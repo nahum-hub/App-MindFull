@@ -89,4 +89,47 @@ class Module extends BaseModel {
         }
         return false;
     }
+
+    /**
+     * Obtiene los retos activos asignados al usuario.
+     *
+     * @param string $userIdHex
+     * @return array
+     */
+    public function getUserActiveChallenges($userIdHex) {
+        $userIdBin = self::uuidToBin($userIdHex);
+
+        $stmt = $this->db->prepare("
+            SELECT mc.*
+            FROM user_module_progress ump
+            JOIN modules_challenges mc ON ump.module_id = mc.id
+            WHERE ump.user_id = ? AND ump.is_completed = 1
+            AND mc.type IN ('reto_semanal', 'reto_mensual', 'reto_individual')
+            ORDER BY ump.started_at ASC
+        ");
+        $stmt->execute([$userIdBin]);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Obtiene el historial de módulos y retos completados por el usuario.
+     *
+     * @param string $userIdHex
+     * @return array
+     */
+    public function getCompletedHistory($userIdHex) {
+        $userIdBin = self::uuidToBin($userIdHex);
+
+        $stmt = $this->db->prepare("
+            SELECT mc.title, mc.type, ump.completed_at
+            FROM user_module_progress ump
+            JOIN modules_challenges mc ON ump.module_id = mc.id
+            WHERE ump.user_id = ? AND ump.is_completed = 0
+            ORDER BY ump.completed_at DESC
+        ");
+        $stmt->execute([$userIdBin]);
+
+        return $stmt->fetchAll();
+    }
 }

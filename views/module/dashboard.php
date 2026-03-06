@@ -154,12 +154,73 @@ $error = $_GET['error'] ?? null;
         <?php else: ?>
             <!-- Caso: No hay módulos (o ya terminó todo y no hay nuevos) -->
             <?php if (!$msg): ?>
-                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center mb-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-2">Aún no tienes módulos asignados</h2>
                     <p class="text-gray-600">Por favor, espera a que el administrador asigne nuevos retos a tu cuenta.</p>
                 </div>
             <?php endif; ?>
         <?php endif; ?>
+
+        <!-- Sección: Retos Activos -->
+        <?php if (!empty($activeChallenges)): ?>
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">Retos Activos</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <?php foreach ($activeChallenges as $challenge): ?>
+                        <div class="bg-white rounded-lg shadow-sm border border-blue-200 p-5 hover:shadow-md transition">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-lg font-bold text-blue-900"><?= htmlspecialchars($challenge['title']) ?></h3>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 uppercase tracking-wide">
+                                    <?= htmlspecialchars(str_replace('reto_', '', $challenge['type'])) ?>
+                                </span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-3"><?= nl2br(htmlspecialchars($challenge['description'])) ?></p>
+                            <!-- Como los retos en esta estructura requieren actividades,
+                                 aquí el usuario podría hacer clic para ver el reto o responderlo.
+                                 Para MVP lo dejamos informativo o enlazable. -->
+                            <a href="<?= BASE_URL ?>module/dashboard?challenge_id=<?= $challenge['id'] ?>" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center">
+                                Responder Reto &rarr;
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <!-- Sección: Mi Progreso (Muro de Estrellas) -->
+        <div class="bg-white rounded-xl shadow-sm border border-yellow-200 overflow-hidden mb-8">
+            <div class="px-6 py-5 bg-yellow-50 border-b border-yellow-100">
+                <h2 class="text-2xl font-extrabold text-yellow-900 flex items-center">
+                    <span class="mr-2 text-2xl">🏆</span> Mi Progreso
+                </h2>
+                <p class="text-yellow-700 text-sm mt-1">Muro de honor de tus módulos y retos completados.</p>
+            </div>
+            <div class="p-6">
+                <?php if (empty($completedHistory)): ?>
+                    <p class="text-gray-500 text-center italic">Aún no has completado ningún módulo o reto. ¡Sigue adelante!</p>
+                <?php else: ?>
+                    <ul class="space-y-3">
+                        <?php foreach ($completedHistory as $history): ?>
+                            <li class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <span class="text-xl mr-3" title="Completado">⭐</span>
+                                <div class="flex-grow">
+                                    <h4 class="text-md font-bold text-gray-800"><?= htmlspecialchars($history['title']) ?></h4>
+                                    <span class="text-xs text-gray-500 uppercase tracking-wide">
+                                        <?= htmlspecialchars(str_replace('_', ' ', $history['type'])) ?>
+                                    </span>
+                                </div>
+                                <?php if (!empty($history['completed_at'])): ?>
+                                    <div class="text-xs text-gray-400">
+                                        <?= date('d M Y', strtotime($history['completed_at'])) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+        </div>
+
     </main>
 
     <footer class="bg-white border-t border-gray-200 py-6 text-center mt-auto">

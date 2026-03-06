@@ -23,6 +23,11 @@ class ModuleController {
         $moduleModel = new Module();
         $activityModel = new Activity();
 
+        // Obtener nuevos datos: retos activos e historial de completados
+        // Se cargan antes del posible early return para asegurar que siempre estén disponibles en la vista
+        $activeChallenges = $moduleModel->getUserActiveChallenges($this->userId);
+        $completedHistory = $moduleModel->getCompletedHistory($this->userId);
+
         // Obtener el módulo actual (el pendiente, o inicializar el siguiente)
         $currentModule = $moduleModel->getCurrentModule($this->userId);
 
