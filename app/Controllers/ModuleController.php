@@ -41,15 +41,8 @@ class ModuleController {
         // Obtener actividades
         $activities = $activityModel->getActivities($this->userId, $currentModule['id']);
 
-        // Comprobar si todas las actividades están en 0 (Completado)
-        $allCompleted = true;
-        foreach ($activities as $act) {
-            // is_completed: 1 = Pendiente, 0 = Completado
-            if ($act['is_completed'] !== 0) {
-                $allCompleted = false;
-                break;
-            }
-        }
+        // Comprobar si todas las actividades están completadas basándose en el conteo de DB
+        $allCompleted = $activityModel->isModuleCompleted($this->userId, $currentModule['id']);
 
         require '../views/module/dashboard.php';
     }
@@ -82,11 +75,11 @@ class ModuleController {
 
             if ($activityId > 0 && !empty($content)) {
                 $activityModel = new Activity();
-                $success = $activityModel->saveResponse($this->userId, $activityId, $content);
+                $result = $activityModel->saveResponse($this->userId, $activityId, $content);
 
                 // Si es una petición AJAX, devolver JSON
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-                    echo json_encode(['success' => $success]);
+                    echo json_encode($result);
                     exit;
                 }
             }

@@ -235,11 +235,12 @@ $error = $_GET['error'] ?? null;
                                     location.reload();
                                 }, 1500);
                             } else {
-                                alert('Hubo un error al guardar tu respuesta.');
+                                console.log("Error del servidor:", data.error || "Desconocido");
+                                alert('Hubo un error al guardar tu respuesta. Revisa la consola para más detalles.');
                                 btn.prop('disabled', false).text('Guardar Respuesta');
                             }
                         } catch (err) {
-                            console.error(res);
+                            console.error("Error procesando JSON:", res);
                             alert('Error procesando la solicitud.');
                             btn.prop('disabled', false).text('Guardar Respuesta');
                         }
