@@ -3,83 +3,74 @@
 namespace App\Models;
 
 class User extends BaseModel {
+
     /**
-     * Registra un nuevo usuario en la base de datos
+     * Inserta un nuevo usuario (y su perfil) usando MySQL UUID() convertido a binario.
+     * Tier por defecto: 1 (Free).
+     *
      * @param string $email
      * @param string $password
      * @param string $firstName
      * @param string $lastName
-     * @return string|false El UUID en formato Hex si fue exitoso, false si falló
+     * @return bool True si se creó con éxito, false si el email ya existe o hubo error.
      */
-    public function register($email, $password, $firstName, $lastName) {
-        $uuidHex = bin2hex(random_bytes(16)); // Simplificado para este ejemplo, o usar una función de uuidv4 real
-        $uuidBin = self::uuidToBin($uuidHex);
-        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+    public function create($email, $password, $firstName, $lastName) {
+        // Verificar si el email ya existe
+        if ($this->getByEmail($email)) {
+            return false;
+        }
 
-        // Obtener el ID del Tier 'Free'
-        $stmt_tier = $this->db->prepare("SELECT id FROM subscription_tiers WHERE name = 'Free' LIMIT 1");
-        $stmt_tier->execute();
-        $tier = $stmt_tier->fetch();
-        $tierId = $tier ? $tier['id'] : 1;
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
         try {
             $this->db->beginTransaction();
 
-            // Insertar usuario
-            $stmtUser = $this->db->prepare("INSERT INTO users (id, email, password_hash, tier_id, status) VALUES (?, ?, ?, ?, 'active')");
-            $stmtUser->execute([$uuidBin, $email, $passwordHash, $tierId]);
+            // Insertar usuario: Generamos el UUID en MySQL, eliminamos los guiones y lo convertimos a UNHEX (BINARY 16)
+            $stmtUser = $this->db->prepare("
+                INSERT INTO users (id, email, password_hash, tier_id, status)
+                VALUES (UNHEX(REPLACE(UUID(), '-', '')), ?, ?, 1, 'active')
+            ");
+            $stmtUser->execute([$email, $passwordHash]);
+
+            // Obtener el ID insertado para guardarlo en user_profiles
+            // Como no es AUTO_INCREMENT, lo buscamos por el email (que es UNIQUE)
+            $stmtGetId = $this->db->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+            $stmtGetId->execute([$email]);
+            $insertedIdBin = $stmtGetId->fetchColumn();
 
             // Insertar perfil
             $stmtProfile = $this->db->prepare("INSERT INTO user_profiles (user_id, first_name, last_name) VALUES (?, ?, ?)");
-            $stmtProfile->execute([$uuidBin, $firstName, $lastName]);
+            $stmtProfile->execute([$insertedIdBin, $firstName, $lastName]);
 
             $this->db->commit();
-            return $uuidHex;
+            return true;
         } catch (\Exception $e) {
             $this->db->rollBack();
+            // En entorno local se puede hacer echo o log del error para depurar
+            error_log($e->getMessage());
             return false;
         }
     }
 
     /**
-     * Verifica las credenciales del usuario
+     * Busca al usuario durante el login por su email.
+     * Retorna los datos con el ID convertido a hexadecimal texto.
+     *
      * @param string $email
-     * @param string $password
-     * @return array|false Datos del usuario si es correcto, false si falló
+     * @return array|false Datos del usuario o false si no existe.
      */
-    public function login($email, $password) {
-        $stmt = $this->db->prepare("SELECT id, password_hash, tier_id FROM users WHERE email = ? AND status = 'active' LIMIT 1");
+    public function getByEmail($email) {
+        $stmt = $this->db->prepare("
+            SELECT u.id, u.email, u.password_hash, u.tier_id, u.status, p.first_name, p.last_name
+            FROM users u
+            LEFT JOIN user_profiles p ON u.id = p.user_id
+            WHERE u.email = ? LIMIT 1
+        ");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
-        if ($user && password_verify($password, $user['password_hash'])) {
-            $user['id_hex'] = self::binToUuid($user['id']);
-            unset($user['password_hash']);
-            return $user;
-        }
-
-        return false;
-    }
-
-    /**
-     * Obtiene los datos del usuario por su UUID Hexadecimal
-     * @param string $uuidHex
-     * @return array|false
-     */
-    public function getById($uuidHex) {
-        $uuidBin = self::uuidToBin($uuidHex);
-
-        $stmt = $this->db->prepare("
-            SELECT u.id, u.email, u.tier_id, p.first_name, p.last_name, t.name as tier_name
-            FROM users u
-            JOIN user_profiles p ON u.id = p.user_id
-            JOIN subscription_tiers t ON u.tier_id = t.id
-            WHERE u.id = ? LIMIT 1
-        ");
-        $stmt->execute([$uuidBin]);
-        $user = $stmt->fetch();
-
         if ($user) {
+            // Regla Crítica de UUID: convertir BINARY(16) a texto con bin2hex()
             $user['id_hex'] = self::binToUuid($user['id']);
             return $user;
         }
