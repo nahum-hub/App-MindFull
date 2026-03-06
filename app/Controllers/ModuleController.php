@@ -12,7 +12,7 @@ class ModuleController {
     public function __construct() {
         // Redirección: Si no está logueado e intenta entrar, a /login
         if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
+            header('Location: ' . BASE_URL . 'login');
             exit;
         }
         $this->userId = $_SESSION['user_id'];
@@ -67,7 +67,7 @@ class ModuleController {
             }
 
             // Si es post tradicional, volver al dashboard
-            header('Location: /module/dashboard');
+            header('Location: ' . BASE_URL . 'module/dashboard');
             exit;
         }
     }
@@ -83,15 +83,15 @@ class ModuleController {
                 $success = $moduleModel->checkKeyword($this->userId, $moduleId, $keyword);
 
                 if ($success) {
-                    header('Location: /module/dashboard?msg=unlocked');
+                    header('Location: ' . BASE_URL . 'module/dashboard?msg=unlocked');
                     exit;
                 } else {
-                    header('Location: /module/dashboard?error=wrong_keyword');
+                    header('Location: ' . BASE_URL . 'module/dashboard?error=wrong_keyword');
                     exit;
                 }
             }
         }
-        header('Location: /module/dashboard');
+        header('Location: ' . BASE_URL . 'module/dashboard');
         exit;
     }
 }

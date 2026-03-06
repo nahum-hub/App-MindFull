@@ -22,11 +22,11 @@ $error = $_GET['error'] ?? null;
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <a href="/" class="text-xl font-bold text-blue-600 tracking-tight">Círculo de Crecimiento</a>
+                    <a href="<?= BASE_URL ?>" class="text-xl font-bold text-blue-600 tracking-tight">Círculo de Crecimiento</a>
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-gray-500 text-sm">Mi Progreso</span>
-                    <a href="/logout" class="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-2 rounded-md text-sm font-medium transition">Cerrar Sesión</a>
+                    <a href="<?= BASE_URL ?>logout" class="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-2 rounded-md text-sm font-medium transition">Cerrar Sesión</a>
                 </div>
             </div>
         </div>
@@ -141,7 +141,7 @@ $error = $_GET['error'] ?? null;
                             <h2 class="text-2xl font-bold text-blue-900 mb-2">¡Excelente Trabajo!</h2>
                             <p class="text-blue-700">Has completado todas las actividades del módulo. Ingresa la palabra clave de la lección para avanzar.</p>
                         </div>
-                        <form method="POST" action="/module/unlock" class="max-w-md mx-auto flex gap-3">
+                        <form method="POST" action="<?= BASE_URL ?>module/unlock" class="max-w-md mx-auto flex gap-3">
                             <input type="hidden" name="module_id" value="<?= $currentModule['id'] ?>">
                             <input type="text" name="keyword" placeholder="Escribe la palabra secreta" class="flex-grow rounded-md border-blue-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 p-3" required>
                             <button type="submit" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-md shadow-md transition">
@@ -185,7 +185,7 @@ $error = $_GET['error'] ?? null;
                 btn.prop('disabled', true).text('Guardando...');
 
                 $.ajax({
-                    url: '/module/saveActivity',
+                    url: '<?= BASE_URL ?>module/saveActivity',
                     type: 'POST',
                     data: {
                         activity_id: activityId,

@@ -31,9 +31,20 @@ spl_autoload_register(function ($class) {
 
 session_start();
 
+// Determinar dinámicamente el BASE_URL en base al script actual (public/index.php)
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+// Quitar '/public' del final si está presente
+$baseDir = preg_replace('#/public/?$#', '', $scriptDir);
+if ($baseDir === '/' || $baseDir === '') {
+    $baseDir = '';
+}
+define('BASE_URL', rtrim($baseDir, '/') . '/');
+
 // Front Controller Básico con Mapeo de Rutas Especiales
+// Apache/XAMPP .htaccess pasa la ruta limpia a través de $_GET['url']
 $url = $_GET['url'] ?? 'home';
 $url = rtrim($url, '/');
+
 if (empty($url)) {
     $url = 'home';
 }
@@ -44,12 +55,20 @@ $routes = [
     'login' => ['AuthController', 'login'],
     'register' => ['AuthController', 'register'],
     'logout' => ['AuthController', 'logout'],
-    'home' => ['HomeController', 'index']
+    'home' => ['HomeController', 'index'],
+    'continue' => ['HomeController', 'continueProgreso'],
+    'dashboard' => ['ModuleController', 'dashboard'] // Por si se accede como /dashboard
 ];
 
 $firstSegment = strtolower($urlParts[0]);
 
-if (isset($routes[$firstSegment])) {
+// Verificar si es un caso especial anidado, ej. module/dashboard -> Controller: ModuleController, Method: dashboard
+if ($firstSegment === 'module' && isset($urlParts[1])) {
+    $controllerName = 'ModuleController';
+    $methodName = $urlParts[1];
+    unset($urlParts[0], $urlParts[1]);
+    $params = array_values($urlParts);
+} elseif (isset($routes[$firstSegment])) {
     $controllerName = $routes[$firstSegment][0];
     $methodName = $routes[$firstSegment][1];
 
@@ -57,8 +76,7 @@ if (isset($routes[$firstSegment])) {
     unset($urlParts[0]);
     $params = array_values($urlParts);
 } else {
-    // Comportamiento dinámico por defecto (ej. module/dashboard -> ModuleController->dashboard())
-    // Manejar caso base cuando la URL no tiene controlador ni método definido
+    // Comportamiento dinámico por defecto
     $controllerName = (!empty($urlParts[0])) ? ucfirst($urlParts[0]) . 'Controller' : 'HomeController';
     $methodName = (!empty($urlParts[1])) ? $urlParts[1] : 'index';
 

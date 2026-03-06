@@ -24,7 +24,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/login" class="space-y-6">
+        <form method="POST" action="<?= BASE_URL ?>login" class="space-y-6">
             <div>
                 <label class="block text-gray-700 text-sm font-semibold mb-2" for="email">Correo Electrónico</label>
                 <input class="appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" id="email" name="email" type="email" placeholder="tu@email.com" required>
@@ -52,7 +52,7 @@
             <div class="text-center mt-6">
                 <p class="text-sm text-gray-600">
                     ¿No tienes cuenta?
-                    <a href="/register" class="font-semibold text-blue-600 hover:text-blue-500 transition">
+                    <a href="<?= BASE_URL ?>register" class="font-semibold text-blue-600 hover:text-blue-500 transition">
                         Regístrate aquí
                     </a>
                 </p>

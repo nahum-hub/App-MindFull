@@ -27,7 +27,7 @@ class AuthController {
 
             if ($success) {
                 // Redirige al login tras el éxito
-                header('Location: /login?msg=registered');
+                header('Location: ' . BASE_URL . 'login?msg=registered');
                 exit;
             } else {
                 $error = "El correo electrónico ya está registrado o hubo un error al crear la cuenta.";
@@ -67,7 +67,7 @@ class AuthController {
                 $_SESSION['tier_id'] = $user['tier_id'];
 
                 // Redirigir al dashboard
-                header('Location: /module/dashboard');
+                header('Location: ' . BASE_URL . 'module/dashboard');
                 exit;
             } else {
                 $error = "Credenciales incorrectas.";
@@ -79,11 +79,11 @@ class AuthController {
         }
     }
 
-    // Destruye la sesión y manda al login
+    // Destruye la sesión y manda al inicio
     public function logout() {
         session_unset();
         session_destroy();
-        header('Location: /login');
+        header('Location: ' . BASE_URL . '');
         exit;
     }
 }
