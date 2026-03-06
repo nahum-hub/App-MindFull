@@ -184,7 +184,7 @@ $error = $_GET['error'] ?? null;
                             <!-- Como los retos en esta estructura requieren actividades,
                                  aquí el usuario podría hacer clic para ver el reto o responderlo.
                                  Para MVP lo dejamos informativo o enlazable. -->
-                            <a href="<?= BASE_URL ?>module/dashboard?challenge_id=<?= $challenge['id'] ?>" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center">
+                            <a href="<?= BASE_URL ?>challenge/view/<?= $challenge['id'] ?>" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center">
                                 Responder Reto &rarr;
                             </a>
                         </div>

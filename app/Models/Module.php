@@ -113,6 +113,28 @@ class Module extends BaseModel {
     }
 
     /**
+     * Obtiene los detalles de un reto específico (incluyendo fecha de inicio)
+     *
+     * @param string $userIdHex
+     * @param int $challengeId
+     * @return array|false
+     */
+    public function getChallengeProgress($userIdHex, $challengeId) {
+        $userIdBin = self::uuidToBin($userIdHex);
+
+        $stmt = $this->db->prepare("
+            SELECT mc.*, ump.started_at, ump.is_completed
+            FROM user_module_progress ump
+            JOIN modules_challenges mc ON ump.module_id = mc.id
+            WHERE ump.user_id = ? AND ump.module_id = ?
+            AND mc.type IN ('reto_semanal', 'reto_mensual', 'reto_individual')
+        ");
+        $stmt->execute([$userIdBin, $challengeId]);
+
+        return $stmt->fetch();
+    }
+
+    /**
      * Obtiene el historial de módulos y retos completados por el usuario.
      *
      * @param string $userIdHex

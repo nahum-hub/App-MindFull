@@ -31,14 +31,8 @@ spl_autoload_register(function ($class) {
 
 session_start();
 
-// Determinar dinámicamente el BASE_URL en base al script actual (public/index.php)
-$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-// Quitar '/public' del final si está presente
-$baseDir = preg_replace('#/public/?$#', '', $scriptDir);
-if ($baseDir === '/' || $baseDir === '') {
-    $baseDir = '';
-}
-define('BASE_URL', rtrim($baseDir, '/') . '/');
+// Usar la constante configurada globalmente para asegurar consistencia
+define('BASE_URL', \Config\Config::BASE_URL);
 
 // Front Controller Básico con Mapeo de Rutas Especiales
 // Apache/XAMPP .htaccess pasa la ruta limpia a través de $_GET['url']
@@ -66,6 +60,11 @@ $firstSegment = strtolower($urlParts[0]);
 // Verificar si es un caso especial anidado, ej. module/dashboard -> Controller: ModuleController, Method: dashboard
 if ($firstSegment === 'module' && isset($urlParts[1])) {
     $controllerName = 'ModuleController';
+    $methodName = $urlParts[1];
+    unset($urlParts[0], $urlParts[1]);
+    $params = array_values($urlParts);
+} elseif ($firstSegment === 'challenge' && isset($urlParts[1])) {
+    $controllerName = 'ChallengeController';
     $methodName = $urlParts[1];
     unset($urlParts[0], $urlParts[1]);
     $params = array_values($urlParts);
