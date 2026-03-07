@@ -175,20 +175,30 @@ $error = $_GET['error'] ?? null;
                 <h2 class="text-2xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">Retos Activos</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <?php foreach ($activeChallenges as $challenge): ?>
-                        <div class="bg-white rounded-lg shadow-sm border border-blue-200 p-5 hover:shadow-md transition">
+                        <?php
+                            $isAnswered = $challenge['is_answered_today'];
+                            $borderClass = $isAnswered ? 'border-l-8 border-green-500' : 'border-l-8 border-red-500';
+                        ?>
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 <?= $borderClass ?> p-5 hover:shadow-md transition flex flex-col h-full">
                             <div class="flex justify-between items-start mb-3">
                                 <h3 class="text-lg font-bold text-blue-900"><?= htmlspecialchars($challenge['title']) ?></h3>
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 uppercase tracking-wide">
                                     <?= htmlspecialchars(str_replace('reto_', '', $challenge['type'])) ?>
                                 </span>
                             </div>
-                            <p class="text-gray-600 text-sm mb-4 line-clamp-3"><?= nl2br(htmlspecialchars($challenge['description'])) ?></p>
-                            <!-- Como los retos en esta estructura requieren actividades,
-                                 aquí el usuario podría hacer clic para ver el reto o responderlo.
-                                 Para MVP lo dejamos informativo o enlazable. -->
-                            <a href="<?= BASE_URL ?>challenge/view/<?= $challenge['id'] ?>" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center">
-                                Responder Reto &rarr;
-                            </a>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow"><?= nl2br(htmlspecialchars($challenge['description'])) ?></p>
+
+                            <div class="mt-auto pt-4 border-t border-gray-100">
+                                <?php if ($isAnswered): ?>
+                                    <a href="<?= BASE_URL ?>challenge/view/<?= $challenge['id'] ?>" class="text-green-600 hover:text-green-700 text-sm font-bold flex items-center">
+                                        ✓ Completado hoy
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= BASE_URL ?>challenge/view/<?= $challenge['id'] ?>" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center">
+                                        Responder Reto &rarr;
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 </div>

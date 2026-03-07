@@ -25,8 +25,35 @@ class ModuleController {
 
         // Obtener nuevos datos: retos activos e historial de completados
         // Se cargan antes del posible early return para asegurar que siempre estén disponibles en la vista
-        $activeChallenges = $moduleModel->getUserActiveChallenges($this->userId);
+        $activeChallengesRaw = $moduleModel->getUserActiveChallenges($this->userId);
         $completedHistory = $moduleModel->getCompletedHistory($this->userId);
+
+        $activeChallenges = [];
+        $now = new \DateTime();
+        $now->setTime(0, 0, 0);
+
+        foreach ($activeChallengesRaw as $challenge) {
+            // Calcula el Día Actual
+            $startDate = new \DateTime($challenge['started_at']);
+            $startDate->setTime(0, 0, 0);
+            $interval = $startDate->diff($now);
+            $currentDay = $interval->days + 1;
+
+            $challengeActivities = $activityModel->getActivities($this->userId, $challenge['id']);
+            $isAnsweredToday = false;
+
+            foreach ($challengeActivities as $act) {
+                if ((int)$act['position'] === $currentDay) {
+                    if ($act['is_completed'] === 0) {
+                        $isAnsweredToday = true;
+                    }
+                    break; // Solo nos importa la actividad del día actual
+                }
+            }
+
+            $challenge['is_answered_today'] = $isAnsweredToday;
+            $activeChallenges[] = $challenge;
+        }
 
         // Obtener el módulo actual (el pendiente, o inicializar el siguiente)
         $currentModule = $moduleModel->getCurrentModule($this->userId);
