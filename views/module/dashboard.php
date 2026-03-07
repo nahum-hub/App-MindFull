@@ -58,53 +58,56 @@ $error = $_GET['error'] ?? null;
         <?php endif; ?>
 
         <?php if ($currentModule): ?>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-                <!-- Module Header -->
-                <div class="px-6 py-8 border-b border-gray-100">
-                    <h1 class="text-3xl font-extrabold text-gray-900 mb-2"><?= htmlspecialchars($currentModule['title']) ?></h1>
-                    <p class="text-gray-500 text-lg leading-relaxed"><?= nl2br(htmlspecialchars($currentModule['description'])) ?></p>
+            <?php if (!empty($showUnlockCard) && $showUnlockCard): ?>
+                <!-- Estado PENDIENTE_DESBLOQUEO -->
+                <div class="max-w-2xl mx-auto bg-blue-50 border border-blue-100 p-8 rounded-xl shadow-lg text-center mb-8">
+                    <div class="mb-4">
+                        <span class="text-5xl">🎉</span>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-blue-900 mb-2">¡Excelente Trabajo!</h2>
+                    <p class="text-blue-800 text-lg mb-8 leading-relaxed">
+                        Has completado y reflexionado sobre todas las actividades de este módulo. Ingresa la palabra clave de la lección para guardar tu progreso y avanzar al siguiente paso.
+                    </p>
+
+                    <form method="POST" action="<?= BASE_URL ?>module/unlock" class="w-full flex gap-3 shadow-md rounded-md overflow-hidden bg-white">
+                        <input type="hidden" name="module_id" value="<?= $currentModule['id'] ?>">
+                        <input type="text" name="keyword" placeholder="Escribe la palabra secreta" class="flex-grow border-0 focus:ring-0 p-4 text-gray-800 text-lg font-medium" required>
+                        <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-6 py-4 font-bold transition text-lg">
+                            Desbloquear
+                        </button>
+                    </form>
                 </div>
-
-                <!-- Reproductor de Audio (Google Drive) -->
-                <?php if (!empty($currentModule['audio_url'])): ?>
-                    <?php
-                    // Lógica para convertir link compartido a URL de preview/stream embebible
-                    $audioUrl = $currentModule['audio_url'];
-                    $audioId = '';
-
-                    if (preg_match('/d\/([a-zA-Z0-9_-]+)/', $audioUrl, $matches)) {
-                        $audioId = $matches[1];
-                    } elseif (preg_match('/id=([a-zA-Z0-9_-]+)/', $audioUrl, $matches)) {
-                        $audioId = $matches[1];
-                    }
-
-                    if ($audioId):
-                    ?>
-                    <div class="px-6 py-6 bg-gray-50 border-b border-gray-100 flex flex-col items-center">
-                        <span class="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">Audio Guía</span>
-                        <iframe src="https://drive.google.com/file/d/<?= htmlspecialchars($audioId) ?>/preview" width="100%" height="100" class="rounded border-0 shadow-sm" allow="autoplay"></iframe>
+            <?php else: ?>
+                <!-- Estado ACTIVO -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+                    <!-- Module Header -->
+                    <div class="px-6 py-8 border-b border-gray-100">
+                        <h1 class="text-3xl font-extrabold text-gray-900 mb-2"><?= htmlspecialchars($currentModule['title']) ?></h1>
+                        <p class="text-gray-500 text-lg leading-relaxed"><?= nl2br(htmlspecialchars($currentModule['description'])) ?></p>
                     </div>
-                    <?php endif; ?>
-                <?php endif; ?>
 
-                <!-- Si todo está completado, ocultamos las actividades y mostramos solo el unlock -->
-                <?php if (!empty($activities) && $allCompleted): ?>
-                    <div class="px-6 py-12 bg-blue-50 border-t border-blue-100 flex flex-col items-center justify-center text-center">
-                        <div class="mb-6">
-                            <span class="text-5xl">🎉</span>
+                    <!-- Reproductor de Audio (Google Drive) -->
+                    <?php if (!empty($currentModule['audio_url'])): ?>
+                        <?php
+                        // Lógica para convertir link compartido a URL de preview/stream embebible
+                        $audioUrl = $currentModule['audio_url'];
+                        $audioId = '';
+
+                        if (preg_match('/d\/([a-zA-Z0-9_-]+)/', $audioUrl, $matches)) {
+                            $audioId = $matches[1];
+                        } elseif (preg_match('/id=([a-zA-Z0-9_-]+)/', $audioUrl, $matches)) {
+                            $audioId = $matches[1];
+                        }
+
+                        if ($audioId):
+                        ?>
+                        <div class="px-6 py-6 bg-gray-50 border-b border-gray-100 flex flex-col items-center">
+                            <span class="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wider">Audio Guía</span>
+                            <iframe src="https://drive.google.com/file/d/<?= htmlspecialchars($audioId) ?>/preview" width="100%" height="100" class="rounded border-0 shadow-sm" allow="autoplay"></iframe>
                         </div>
-                        <h2 class="text-3xl font-extrabold text-blue-900 mb-4">¡Excelente Trabajo!</h2>
-                        <p class="text-blue-800 text-lg mb-8 max-w-xl mx-auto leading-relaxed">Has completado y reflexionado sobre todas las actividades de este módulo. Ingresa la palabra clave de la lección para guardar tu progreso y avanzar al siguiente paso.</p>
+                        <?php endif; ?>
+                    <?php endif; ?>
 
-                        <form method="POST" action="<?= BASE_URL ?>module/unlock" class="w-full max-w-md mx-auto flex gap-3 shadow-lg rounded-md overflow-hidden">
-                            <input type="hidden" name="module_id" value="<?= $currentModule['id'] ?>">
-                            <input type="text" name="keyword" placeholder="Escribe la palabra secreta" class="flex-grow border-0 focus:ring-0 p-4 text-gray-800 text-lg font-medium" required>
-                            <button type="submit" class="bg-blue-800 hover:bg-blue-900 text-white font-bold py-4 px-8 transition text-lg">
-                                Desbloquear
-                            </button>
-                        </form>
-                    </div>
-                <?php else: ?>
                     <!-- Lista de Actividades -->
                     <div class="px-6 py-6 space-y-8 bg-gray-50">
                         <?php if (empty($activities)): ?>
@@ -155,8 +158,8 @@ $error = $_GET['error'] ?? null;
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         <?php else: ?>
             <!-- Caso: No hay módulos (o ya terminó todo y no hay nuevos) -->
             <?php if (!$msg): ?>

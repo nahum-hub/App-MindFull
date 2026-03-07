@@ -84,6 +84,29 @@ class Module extends BaseModel {
                     WHERE user_id = ? AND module_id = ?
                 ");
                 $stmtUpdate->execute([$userIdBin, $moduleId]);
+
+                // Crear automáticamente el registro para el siguiente módulo en la tabla de progreso
+                $stmtNext = $this->db->prepare("
+                    SELECT mc.id
+                    FROM modules_challenges mc
+                    WHERE mc.active = 1 AND mc.type = 'modulo'
+                    AND mc.id NOT IN (
+                        SELECT module_id FROM user_module_progress WHERE user_id = ?
+                    )
+                    ORDER BY mc.numeric_order ASC
+                    LIMIT 1
+                ");
+                $stmtNext->execute([$userIdBin]);
+                $nextModule = $stmtNext->fetch();
+
+                if ($nextModule) {
+                    $stmtInit = $this->db->prepare("
+                        INSERT INTO user_module_progress (user_id, module_id, started_at, is_completed)
+                        VALUES (?, ?, NOW(), 1)
+                    ");
+                    $stmtInit->execute([$userIdBin, $nextModule['id']]);
+                }
+
                 return true;
             }
         }

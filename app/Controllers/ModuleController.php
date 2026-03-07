@@ -44,6 +44,9 @@ class ModuleController {
         // Comprobar si todas las actividades están completadas basándose en el conteo de DB
         $allCompleted = $activityModel->isModuleCompleted($this->userId, $currentModule['id']);
 
+        // Estado PENDIENTE_DESBLOQUEO
+        $showUnlockCard = (!empty($activities) && $allCompleted);
+
         require '../views/module/dashboard.php';
     }
 
