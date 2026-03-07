@@ -177,4 +177,47 @@ class Module extends BaseModel {
 
         return $stmt->fetchAll();
     }
+
+    /**
+     * Intenta desbloquear un módulo global que no ha sido asignado al usuario
+     * basándose en la palabra clave.
+     *
+     * @param string $userIdHex
+     * @param string $keyword
+     * @return bool True si se encontró y asignó un módulo, false en caso contrario
+     */
+    public function checkGlobalKeyword($userIdHex, $keyword) {
+        $userIdBin = self::uuidToBin($userIdHex);
+        $keyword = trim($keyword);
+
+        if (empty($keyword)) {
+            return false;
+        }
+
+        // Buscar un módulo activo que tenga esa palabra clave
+        // y que el usuario NO tenga asignado aún
+        $stmt = $this->db->prepare("
+            SELECT id
+            FROM modules_challenges
+            WHERE active = 1
+            AND unlock_keyword = ?
+            AND id NOT IN (
+                SELECT module_id FROM user_module_progress WHERE user_id = ?
+            )
+            LIMIT 1
+        ");
+        $stmt->execute([$keyword, $userIdBin]);
+        $module = $stmt->fetch();
+
+        if ($module) {
+            // Asignar el módulo al usuario
+            $stmtInit = $this->db->prepare("
+                INSERT INTO user_module_progress (user_id, module_id, started_at, is_completed)
+                VALUES (?, ?, NOW(), 1)
+            ");
+            return $stmtInit->execute([$userIdBin, $module['id']]);
+        }
+
+        return false;
+    }
 }

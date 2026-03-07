@@ -140,4 +140,28 @@ class ModuleController {
         header('Location: ' . BASE_URL . 'module/dashboard');
         exit;
     }
+
+    // Ruta: /module/unlockGlobal
+    public function unlockGlobal() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $keyword = trim($_POST['keyword'] ?? '');
+
+            if (!empty($keyword)) {
+                $moduleModel = new Module();
+                $success = $moduleModel->checkGlobalKeyword($this->userId, $keyword);
+
+                if ($success) {
+                    // Módulo encontrado y asignado
+                    header('Location: ' . BASE_URL . 'module/dashboard?msg=global_unlocked');
+                    exit;
+                } else {
+                    // Palabra clave inválida o módulo ya asignado
+                    header('Location: ' . BASE_URL . 'module/dashboard?error=invalid_global_keyword');
+                    exit;
+                }
+            }
+        }
+        header('Location: ' . BASE_URL . 'module/dashboard');
+        exit;
+    }
 }

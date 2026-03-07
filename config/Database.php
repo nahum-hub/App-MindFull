@@ -6,7 +6,7 @@ class Database {
     private const HOST = 'localhost';
     private const USER = 'root';
     private const PASS = '';
-    private const DBNAME = 'personal_growth_db';
+    private const DBNAME = 'circulo_crecimiento';
     private const CHARSET = 'utf8mb4';
 
     private static $instance = null;

@@ -62,10 +62,12 @@ $error = $_GET['error'] ?? null;
             <!-- Mostrar SIEMPRE la información del módulo activo al inicio -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
                 <!-- Module Header -->
+                <?php if ($currentModule['type'] === 'modulo'): ?>
                 <div class="px-6 py-8 border-b border-gray-100">
                     <h1 class="text-3xl font-extrabold text-gray-900 mb-2"><?= htmlspecialchars($currentModule['title']) ?></h1>
                     <p class="text-gray-500 text-lg leading-relaxed"><?= nl2br(htmlspecialchars($currentModule['description'])) ?></p>
                 </div>
+                <?php endif; ?>
 
                 <!-- Reproductor de Audio (Google Drive) -->
                 <!-- Reproductor de Audio (Google Drive) SIEMPRE VISIBLE en Estado A (si allCompleted es false) -->
@@ -140,7 +142,8 @@ $error = $_GET['error'] ?? null;
                     </div>
                 <?php endif; ?>
 
-                <!-- ESTADO B PERMANENTE: Tarjeta de Desbloqueo SIEMPRE VISIBLE mientras haya currentModule -->
+                <?php if ($allCompleted): ?>
+                <!-- ESTADO B: Tarjeta de Desbloqueo VISIBLE solo cuando las actividades están completadas -->
                 <div class="px-6 py-12 bg-blue-50 flex flex-col items-center justify-center text-center">
                     <div class="mb-4">
                         <span class="text-5xl">🎉</span>
@@ -158,15 +161,28 @@ $error = $_GET['error'] ?? null;
                         </button>
                     </form>
                 </div>
+                <?php endif; ?>
             </div>
         <?php else: ?>
             <!-- ESTADO C: FINALIZADO GLOBAL (No hay más módulos) -->
-            <?php if (!$msg): ?>
-                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Aún no tienes módulos asignados</h2>
-                    <p class="text-gray-600">Por favor, espera a que el administrador asigne nuevos retos a tu cuenta.</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+                <div class="px-6 py-12 bg-blue-50 flex flex-col items-center justify-center text-center">
+                    <div class="mb-4">
+                        <span class="text-5xl">🌟</span>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-blue-900 mb-2">¡Todo al día!</h2>
+                    <p class="text-blue-800 text-lg mb-8 leading-relaxed max-w-2xl mx-auto">
+                        Has completado todo tu progreso actual. Si tienes una palabra clave para desbloquear un nuevo módulo o reto oculto, ingrésala a continuación.
+                    </p>
+
+                    <form method="POST" action="<?= BASE_URL ?>module/unlockGlobal" class="w-full max-w-lg flex gap-3 shadow-md rounded-md overflow-hidden bg-white">
+                        <input type="text" name="keyword" placeholder="Escribe la palabra secreta" class="flex-grow border-0 focus:ring-0 p-4 text-gray-800 text-lg font-medium" required>
+                        <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white px-6 py-4 font-bold transition text-lg whitespace-nowrap">
+                            Desbloquear
+                        </button>
+                    </form>
                 </div>
-            <?php endif; ?>
+            </div>
         <?php endif; ?>
 
         <!-- Sección: Retos Activos -->
