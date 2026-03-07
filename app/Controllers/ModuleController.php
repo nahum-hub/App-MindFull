@@ -32,7 +32,7 @@ class ModuleController {
         $currentModule = $moduleModel->getCurrentModule($this->userId);
 
         if (!$currentModule) {
-            // Ya no hay módulos disponibles
+            // ESTADO C (Finalizado global): No hay módulo actual ni siguiente disponible
             $msg = "¡Felicidades! Has completado todos los módulos actuales.";
             require '../views/module/dashboard.php';
             return;
@@ -41,11 +41,12 @@ class ModuleController {
         // Obtener actividades
         $activities = $activityModel->getActivities($this->userId, $currentModule['id']);
 
-        // Comprobar si todas las actividades están completadas basándose en el conteo de DB
+        // ESTADO A y B: Comprobar si todas las actividades están completadas basándose en el conteo de DB
         $allCompleted = $activityModel->isModuleCompleted($this->userId, $currentModule['id']);
 
-        // Estado PENDIENTE_DESBLOQUEO
-        $showUnlockCard = (!empty($activities) && $allCompleted);
+        // ESTADO B (Pendiente de Palabra): Todas las actividades en 0, pero user_module_progress sigue en 1
+        // Si no se cumple, estamos en ESTADO A (Activo)
+        $showUnlockCard = $allCompleted;
 
         require '../views/module/dashboard.php';
     }

@@ -83,9 +83,9 @@ class Activity extends BaseModel {
             $stmtTotal->execute([$moduleId]);
             $totalActivities = (int) $stmtTotal->fetchColumn();
 
-            // Si el módulo no tiene actividades, ¿se considera completado? Por regla general, no o dependemos del keyword.
+            // Si el módulo no tiene actividades, pasa directamente al ESTADO B (Pendiente de Palabra)
             if ($totalActivities === 0) {
-                return false;
+                return true;
             }
 
             // Contar actividades completadas por el usuario para este módulo (is_completed = 0)
