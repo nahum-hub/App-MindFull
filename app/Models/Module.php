@@ -18,7 +18,7 @@ class Module extends BaseModel {
             SELECT mc.*
             FROM user_module_progress ump
             JOIN modules_challenges mc ON ump.module_id = mc.id
-            WHERE ump.user_id = ? AND ump.is_completed = 1 AND mc.type = 'modulo'
+            WHERE ump.user_id = ? AND ump.is_completed = 1
             ORDER BY ump.started_at ASC
             LIMIT 1
         ");
@@ -34,7 +34,7 @@ class Module extends BaseModel {
         $stmt_next = $this->db->prepare("
             SELECT mc.*
             FROM modules_challenges mc
-            WHERE mc.active = 1 AND mc.type = 'modulo'
+            WHERE mc.active = 1
             AND mc.id NOT IN (
                 SELECT module_id FROM user_module_progress WHERE user_id = ? AND is_completed = 0
             )
@@ -89,7 +89,7 @@ class Module extends BaseModel {
                 $stmtNext = $this->db->prepare("
                     SELECT mc.id
                     FROM modules_challenges mc
-                    WHERE mc.active = 1 AND mc.type = 'modulo'
+                    WHERE mc.active = 1
                     AND mc.id NOT IN (
                         SELECT module_id FROM user_module_progress WHERE user_id = ?
                     )
