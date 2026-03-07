@@ -123,7 +123,7 @@ class Module extends BaseModel {
         $userIdBin = self::uuidToBin($userIdHex);
 
         $stmt = $this->db->prepare("
-            SELECT mc.*
+            SELECT mc.*, ump.started_at
             FROM user_module_progress ump
             JOIN modules_challenges mc ON ump.module_id = mc.id
             WHERE ump.user_id = ? AND ump.is_completed = 1

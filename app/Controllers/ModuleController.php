@@ -33,8 +33,9 @@ class ModuleController {
         $now->setTime(0, 0, 0);
 
         foreach ($activeChallengesRaw as $challenge) {
-            // Calcula el Día Actual
-            $startDate = new \DateTime($challenge['started_at']);
+            // Calcula el Día Actual con protección por si started_at no existe
+            $startDateRaw = $challenge['started_at'] ?? date('Y-m-d H:i:s');
+            $startDate = new \DateTime($startDateRaw);
             $startDate->setTime(0, 0, 0);
             $interval = $startDate->diff($now);
             $currentDay = $interval->days + 1;
