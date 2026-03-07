@@ -44,10 +44,6 @@ class ModuleController {
         // ESTADO A y B: Comprobar si todas las actividades están completadas basándose en el conteo de DB
         $allCompleted = $activityModel->isModuleCompleted($this->userId, $currentModule['id']);
 
-        // ESTADO B (Pendiente de Palabra): Todas las actividades en 0, pero user_module_progress sigue en 1
-        // Si no se cumple, estamos en ESTADO A (Activo)
-        $showUnlockCard = $allCompleted;
-
         require '../views/module/dashboard.php';
     }
 
